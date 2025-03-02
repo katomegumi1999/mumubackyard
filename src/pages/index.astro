@@ -3,6 +3,12 @@ import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+import Carousel from '../components/Carousel.astro';
+const images = [
+  '/public/blog-placeholder-1.jpg', // 替换成你的图片路径
+  '/public/blog-placeholder-2.jpg',
+  '/public/blog-placeholder-3.jpg',
+];
 ---
 
 <!doctype html>
@@ -12,6 +18,7 @@ import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 	</head>
 	<body>
 		<Header />
+		<Carousel images={images} />
 		<main>
 			<h1>你好世界</h1>
 			<p>

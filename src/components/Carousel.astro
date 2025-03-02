@@ -1,0 +1,281 @@
+---
+// Carousel.astro
+export interface Props {
+  images: string[];
+  interval?: number; // 自动轮播的间隔时间（毫秒）
+  showDots?: boolean; // 是否显示指示点
+  showArrows?: boolean; // 是否显示箭头
+}
+
+const { 
+  images, 
+  interval = 5000, 
+  showDots = true, 
+  showArrows = true 
+} = Astro.props;
+---
+
+<div class="carousel-container">
+  <div class="carousel" data-interval={interval}>
+    <div class="carousel-inner">
+      {images.map((image, index) => (
+        <div class="carousel-item" data-index={index}>
+          <img src={image} alt={`Slide ${index + 1}`} />
+        </div>
+      ))}
+    </div>
+    
+    {showArrows && (
+      <>
+        <button class="carousel-control prev" aria-label="Previous slide">
+          <span>&#10094;</span>
+        </button>
+        <button class="carousel-control next" aria-label="Next slide">
+          <span>&#10095;</span>
+        </button>
+      </>
+    )}
+    
+    {showDots && (
+      <div class="carousel-dots">
+        {images.map((_, index) => (
+          <button 
+            class="carousel-dot" 
+            data-index={index} 
+            aria-label={`Go to slide ${index + 1}`}
+          ></button>
+        ))}
+      </div>
+    )}
+  </div>
+</div>
+
+<style>
+/* 在Carousel.astro组件的<style>部分替换为以下CSS */
+
+    .carousel-container {
+  width: 100%;
+  max-width: 960px; /* 限制最大宽度为960px，与你原始图片宽度一致 */
+  margin: 0 auto; /* 居中显示 */
+  overflow: hidden;
+}
+
+.carousel {
+  position: relative;
+  width: 100%;
+}
+
+.carousel-inner {
+  display: flex;
+  transition: transform 0.5s ease;
+}
+
+.carousel-item {
+  min-width: 100%;
+  flex: 0 0 auto;
+  position: relative;
+  aspect-ratio: 2/1; /* 保持2:1的宽高比，根据你的图片调整 */
+}
+
+.carousel-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 保持图片比例 */
+  display: block; /* 移除图片底部的间隙 */
+}
+
+/* 确保控制按钮在各种屏幕尺寸上都可见 */
+.carousel-control {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+  z-index: 10;
+}
+
+.carousel-control:hover {
+  opacity: 1;
+}
+
+.prev {
+  left: 10px;
+}
+
+.next {
+  right: 10px;
+}
+
+/* 指示点样式 */
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+  width: 100%;
+}
+
+.carousel-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ccc;
+  margin: 0 5px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.carousel-dot.active {
+  background: #333;
+}
+
+/* 媒体查询确保在小屏幕上适当缩放 */
+@media (max-width: 768px) {
+  .carousel-container {
+    width: 100%;
+    /* 移除了之前的"突破容器"设置，让轮播图遵循正常的流式布局 */
+  }
+}
+</style>
+
+<script>
+  // 确保脚本在客户端执行
+  function initCarousel() {
+    const carousels = document.querySelectorAll('.carousel');
+    
+    carousels.forEach(carousel => {
+      const inner = carousel.querySelector('.carousel-inner');
+      const items = carousel.querySelectorAll('.carousel-item');
+      const dots = carousel.querySelectorAll('.carousel-dot');
+      const prev = carousel.querySelector('.prev');
+      const next = carousel.querySelector('.next');
+      
+      let currentIndex = 0;
+      let intervalTime = parseInt(carousel.getAttribute('data-interval') || '5000');
+      let autoplayTimer;
+      
+      // 初始化
+      updateCarousel();
+      startAutoplay();
+      
+      // 设置第一个点为激活状态
+      if (dots.length > 0) {
+        dots[0].classList.add('active');
+      }
+      
+      // 点击上一张/下一张按钮
+      if (prev) {
+        prev.addEventListener('click', () => {
+          goToPrev();
+          resetAutoplay();
+        });
+      }
+      
+      if (next) {
+        next.addEventListener('click', () => {
+          goToNext();
+          resetAutoplay();
+        });
+      }
+      
+      // 点击指示点
+      dots.forEach(dot => {
+        dot.addEventListener('click', () => {
+          currentIndex = parseInt(dot.getAttribute('data-index') || '0');
+          updateCarousel();
+          resetAutoplay();
+        });
+      });
+      
+      // 自动播放控制
+      carousel.addEventListener('mouseenter', () => {
+        clearInterval(autoplayTimer);
+      });
+      
+      carousel.addEventListener('mouseleave', () => {
+        startAutoplay();
+      });
+      
+      // 触摸支持
+      let touchStartX = 0;
+      let touchEndX = 0;
+      
+      carousel.addEventListener('touchstart', e => {
+        touchStartX = e.changedTouches[0].screenX;
+        clearInterval(autoplayTimer);
+      }, { passive: true });
+      
+      carousel.addEventListener('touchend', e => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleTouch();
+        startAutoplay();
+      }, { passive: true });
+      
+      // 函数
+      function updateCarousel() {
+        inner.style.transform = `translateX(-${currentIndex * 100}%)`;
+        
+        // 更新指示点
+        dots.forEach((dot, index) => {
+          if (index === currentIndex) {
+            dot.classList.add('active');
+          } else {
+            dot.classList.remove('active');
+          }
+        });
+      }
+      
+      function goToNext() {
+        currentIndex = (currentIndex + 1) % items.length;
+        updateCarousel();
+      }
+      
+      function goToPrev() {
+        currentIndex = (currentIndex - 1 + items.length) % items.length;
+        updateCarousel();
+      }
+      
+      function startAutoplay() {
+        if (intervalTime > 0) {
+          autoplayTimer = setInterval(goToNext, intervalTime);
+        }
+      }
+      
+      function resetAutoplay() {
+        clearInterval(autoplayTimer);
+        startAutoplay();
+      }
+      
+      function handleTouch() {
+        if (touchEndX < touchStartX - 50) {
+          // 向左滑动
+          goToNext();
+        } else if (touchEndX > touchStartX + 50) {
+          // 向右滑动
+          goToPrev();
+        }
+      }
+    });
+  }
+
+  // 确保脚本在不同Astro加载模式下都能正常工作
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCarousel);
+  } else {
+    initCarousel();
+  }
+
+  // 支持Astro View Transitions
+  document.addEventListener('astro:page-load', initCarousel);
+  document.addEventListener('astro:after-swap', initCarousel);
+</script>
