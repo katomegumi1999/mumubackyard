@@ -53,11 +53,12 @@ const {
 <style>
 /* 在Carousel.astro组件的<style>部分替换为以下CSS */
 
-    .carousel-container {
+.carousel-container {
   width: 100%;
   max-width: 960px; /* 限制最大宽度为960px，与你原始图片宽度一致 */
-  margin: 0 auto; /* 居中显示 */
+  margin: 2rem auto; /* 增加顶部和底部间距为2rem */
   overflow: hidden;
+  position: relative; /* 确保容器是相对定位的 */
 }
 
 .carousel {
@@ -68,13 +69,17 @@ const {
 .carousel-inner {
   display: flex;
   transition: transform 0.5s ease;
+  width: 100%; /* 确保宽度为100% */
+  height: auto; /* 自动高度 */
 }
 
 .carousel-item {
   min-width: 100%;
-  flex: 0 0 auto;
+  width: 100%; /* 确保每个项目占据100%宽度 */
+  flex: 0 0 100%; /* 不伸缩，保持100%宽度 */
   position: relative;
   aspect-ratio: 2/1; /* 保持2:1的宽高比，根据你的图片调整 */
+  overflow: hidden; /* 防止图片溢出 */
 }
 
 .carousel-item img {
@@ -143,12 +148,27 @@ const {
 @media (max-width: 768px) {
   .carousel-container {
     width: 100%;
-    /* 移除了之前的"突破容器"设置，让轮播图遵循正常的流式布局 */
+    margin: 1rem auto; /* 在小屏幕上减少间距 */
+  }
+  
+  .carousel-item {
+    aspect-ratio: 16/9; /* 在小屏幕上调整宽高比 */
+  }
+  
+  .carousel-control {
+    width: 30px; /* 在小屏幕上减小控制按钮尺寸 */
+    height: 30px;
   }
 }
 </style>
 
-<script>
+<!-- 
+这里使用 client:load 指令，这是 Astro 岛屿架构的核心特性
+client:load 告诉 Astro 在页面加载后立即加载并执行这个脚本
+这使得轮播图成为页面中的一个"交互岛屿"
+-->
+<script is:inline define:vars={{ interval }}>
+  // 这是一个 Astro 岛屿 - 一个在静态页面中的交互区域
   // 确保脚本在客户端执行
   function initCarousel() {
     const carousels = document.querySelectorAll('.carousel');
@@ -161,7 +181,7 @@ const {
       const next = carousel.querySelector('.next');
       
       let currentIndex = 0;
-      let intervalTime = parseInt(carousel.getAttribute('data-interval') || '5000');
+      let intervalTime = interval; // 使用从 Astro 组件传递的间隔时间
       let autoplayTimer;
       
       // 初始化
@@ -223,6 +243,7 @@ const {
       
       // 函数
       function updateCarousel() {
+        // 确保轮播图正确滚动到当前索引的图片
         inner.style.transform = `translateX(-${currentIndex * 100}%)`;
         
         // 更新指示点
@@ -278,4 +299,13 @@ const {
   // 支持Astro View Transitions
   document.addEventListener('astro:page-load', initCarousel);
   document.addEventListener('astro:after-swap', initCarousel);
+  
+  // 添加窗口大小变化监听，确保轮播图在调整窗口大小后仍然正确显示
+  window.addEventListener('resize', () => {
+    // 简单延迟执行，避免频繁触发
+    clearTimeout(window.resizeTimer);
+    window.resizeTimer = setTimeout(() => {
+      initCarousel();
+    }, 200);
+  });
 </script>
