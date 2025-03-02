@@ -114,7 +114,7 @@ def process_images(folder_path):
     print(f"平均处理速度：{total_time/total_files:.2f}s/文件")
 
 if __name__ == "__main__":
-    image_folder = r"C:\arcgisfile\testpic"
+    image_folder = r"在这里填入文件夹路径"
     
     if os.path.exists(image_folder) and os.path.isdir(image_folder):
         try:
