@@ -4,6 +4,7 @@ import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
+import AnimatedBackground from '../components/AnimatedBackground.astro';
 
 type Props = CollectionEntry<'blog'>['data'];
 
@@ -14,6 +15,10 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 	<head>
 		<BaseHead title={title} description={description} />
 		<style>
+			body {
+				color: white;
+				background: transparent;
+			}
 			main {
 				width: calc(100% - 2em);
 				max-width: 100%;
@@ -26,14 +31,19 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 				display: block;
 				margin: 0 auto;
 				border-radius: 12px;
-				box-shadow: var(--box-shadow);
+				box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 			}
 			.prose {
 				width: 720px;
 				max-width: calc(100% - 2em);
 				margin: auto;
-				padding: 1em;
-				color: rgb(var(--gray-dark));
+				padding: 1.5em;
+				color: white;
+				background: rgba(255, 255, 255, 0.1);
+				backdrop-filter: blur(10px);
+				-webkit-backdrop-filter: blur(10px);
+				border-radius: 16px;
+				box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 			}
 			.title {
 				margin-bottom: 1em;
@@ -43,18 +53,35 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 			}
 			.title h1 {
 				margin: 0 0 0.5em 0;
+				background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #8a2be2);
+				-webkit-background-clip: text;
+				-webkit-text-fill-color: transparent;
+				background-size: 300% 100%;
+				animation: textGradient 8s ease infinite;
 			}
+			
+			@keyframes textGradient {
+				0% { background-position: 0% 50%; }
+				50% { background-position: 100% 50%; }
+				100% { background-position: 0% 50%; }
+			}
+			
 			.date {
 				margin-bottom: 0.5em;
-				color: rgb(var(--gray));
+				color: rgba(255, 255, 255, 0.8);
 			}
 			.last-updated-on {
 				font-style: italic;
+				color: rgba(255, 255, 255, 0.7);
+			}
+			hr {
+				border-color: rgba(255, 255, 255, 0.2);
 			}
 		</style>
 	</head>
 
 	<body>
+		<AnimatedBackground />
 		<Header />
 		<main>
 			<article>

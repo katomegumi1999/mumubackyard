@@ -5,6 +5,7 @@ import Footer from '../../components/Footer.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../../consts';
 import { getCollection } from 'astro:content';
 import FormattedDate from '../../components/FormattedDate.astro';
+import AnimatedBackground from '../../components/AnimatedBackground.astro';
 
 const posts = (await getCollection('blog')).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
@@ -16,8 +17,15 @@ const posts = (await getCollection('blog')).sort(
 	<head>
 		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
 		<style>
+			body {
+				color: white;
+				background: transparent;
+			}
 			main {
 				width: 960px;
+				max-width: calc(100% - 2em);
+				margin: 0 auto;
+				padding: 2em 0;
 			}
 			ul {
 				display: flex;
@@ -29,6 +37,17 @@ const posts = (await getCollection('blog')).sort(
 			}
 			ul li {
 				width: calc(50% - 1rem);
+				background: rgba(255, 255, 255, 0.1);
+				backdrop-filter: blur(10px);
+				-webkit-backdrop-filter: blur(10px);
+				border-radius: 16px;
+				box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+				transition: transform 0.3s ease, box-shadow 0.3s ease;
+				overflow: hidden;
+			}
+			ul li:hover {
+				transform: translateY(-5px);
+				box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 			}
 			ul li * {
 				text-decoration: none;
@@ -47,26 +66,32 @@ const posts = (await getCollection('blog')).sort(
 			}
 			ul li img {
 				margin-bottom: 0.5rem;
-				border-radius: 12px;
+				border-radius: 12px 12px 0 0;
+				width: 100%;
+				height: auto;
+				object-fit: cover;
 			}
 			ul li a {
 				display: block;
+				padding-bottom: 1rem;
 			}
 			.title {
 				margin: 0;
-				color: rgb(var(--black));
+				padding: 0 1rem;
+				color: white;
 				line-height: 1;
 			}
 			.date {
 				margin: 0;
-				color: rgb(var(--gray));
+				padding: 0.5rem 1rem;
+				color: rgba(255, 255, 255, 0.8);
 			}
 			ul li a:hover h4,
 			ul li a:hover .date {
-				color: rgb(var(--accent));
+				color: #ff6b6b;
 			}
 			ul a:hover img {
-				box-shadow: var(--box-shadow);
+				opacity: 0.9;
 			}
 			@media (max-width: 720px) {
 				ul {
@@ -86,6 +111,7 @@ const posts = (await getCollection('blog')).sort(
 		</style>
 	</head>
 	<body>
+		<AnimatedBackground />
 		<Header />
 		<main>
 			<section>
