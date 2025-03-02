@@ -1,0 +1,94 @@
+---
+// AnimatedBackground.astro
+---
+
+<div class="animated-background">
+  <div class="particles" id="particles"></div>
+</div>
+
+<style>
+  .animated-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+    overflow: hidden;
+    background: linear-gradient(125deg, 
+      #ff6b6b, 
+      #4ecdc4, 
+      #8a2be2, 
+      #45aaf2, 
+      #f1c40f, 
+      #2ecc71, 
+      #ff6b6b);
+    background-size: 700% 700%;
+    animation: gradientFlow 30s ease infinite;
+  }
+  
+  .particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+  
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    animation: float 8s infinite ease-in-out;
+  }
+  
+  @keyframes gradientFlow {
+    0% { background-position: 0% 50%; }
+    25% { background-position: 50% 25%; }
+    50% { background-position: 100% 50%; }
+    75% { background-position: 50% 75%; }
+    100% { background-position: 0% 50%; }
+  }
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0) translateX(0); }
+    25% { transform: translateY(-20px) translateX(10px); }
+    50% { transform: translateY(-35px) translateX(-15px); }
+    75% { transform: translateY(-15px) translateX(15px); }
+  }
+</style>
+
+<script>
+  // 使用 Astro 的客户端脚本
+  function createParticles() {
+    const container = document.getElementById('particles');
+    if (!container) return;
+    
+    const particleCount = 30; // 增加粒子数量
+    
+    for (let i = 0; i < particleCount; i++) {
+      const particle = document.createElement('div');
+      particle.classList.add('particle');
+      
+      // 随机大小
+      const size = Math.random() * 50 + 10;
+      particle.style.width = `${size}px`;
+      particle.style.height = `${size}px`;
+      
+      // 随机位置
+      particle.style.left = `${Math.random() * 100}%`;
+      particle.style.top = `${Math.random() * 100}%`;
+      
+      // 随机动画延迟
+      particle.style.animationDelay = `${Math.random() * 5}s`;
+      
+      // 随机透明度
+      particle.style.opacity = `${Math.random() * 0.5 + 0.1}`;
+      
+      container.appendChild(particle);
+    }
+  }
+  
+  // 当 DOM 加载完成时创建粒子
+  document.addEventListener('DOMContentLoaded', createParticles);
+</script> 

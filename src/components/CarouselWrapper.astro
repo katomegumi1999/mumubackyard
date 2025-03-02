@@ -1,0 +1,22 @@
+---
+import Carousel from './Carousel.astro';
+
+interface Props {
+  images: string[];
+}
+
+const { images } = Astro.props;
+---
+
+<div class="carousel-wrapper">
+  <Carousel images={images} />
+</div>
+
+<style>
+  .carousel-wrapper {
+    border-radius: 15px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  }
+</style> 
